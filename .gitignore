@@ -32,5 +32,12 @@ build/
 ### VS Code ###
 .vscode/
 
+### Arquivos de Log ###
+*.log
+
+### Arquivos de Sistema Operacional ###
+.DS_Store
+Thumbs.db
+
 ### Arquivos de Configuração Sensíveis ###
 /src/main/resources/application.properties

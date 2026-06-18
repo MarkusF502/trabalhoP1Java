@@ -1,0 +1,10 @@
+spring.application.name=trabalhoP1
+
+spring.datasource.url=jdbc:postgresql://seuhost
+
+spring.datasource.username=seunome@seuprojeto
+
+spring.datasource.password=suasenha
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
