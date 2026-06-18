@@ -2,6 +2,7 @@ package com.example.trabalhoP1.model;
 
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,8 +35,11 @@ public class Jogo {
     @ElementCollection
     private List<String> genero;
 
+    @Column(length = 1000)
+    private String urlCapa;
+
     public Jogo() {}
-    
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -50,4 +54,7 @@ public class Jogo {
 
     public List<String> getGenero() { return genero; }
     public void setGenero(List<String> genero) { this.genero = genero; }
+
+    public String getUrlCapa() { return urlCapa; }
+    public void setUrlCapa(String urlCapa) { this.urlCapa = urlCapa; }
 }

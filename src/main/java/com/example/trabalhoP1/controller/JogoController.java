@@ -11,10 +11,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.trabalhoP1.model.Jogo;
 import com.example.trabalhoP1.repository.JogoRepository;
 import com.example.trabalhoP1.repository.UsuarioRepository;
+import com.example.trabalhoP1.service.SupabaseService;
 
 import jakarta.validation.Valid;
 
@@ -26,6 +29,9 @@ public class JogoController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private SupabaseService supabaseService;
 
     private void carregarListas(Model model) {
         model.addAttribute("todasPlataformas", List.of("PC", "PlayStation 5", "PlayStation 4", "Xbox Series X/S", "Xbox One", "Nintendo Switch", "Mobile"));
@@ -42,7 +48,6 @@ public class JogoController {
                 model.addAttribute("nomeUsuario", usuario.getNome());
             });
         }
-
         return "index";
     }
 
@@ -53,8 +58,10 @@ public class JogoController {
         return "cadastro";
     }
 
+    // Adicionamos o @RequestParam para receber o arquivo de imagem
     @PostMapping("/salvar")
-    public String salvarJogo(@Valid Jogo jogo, BindingResult result, Model model) {
+    public String salvarJogo(@Valid Jogo jogo, BindingResult result, Model model, @RequestParam("file") MultipartFile file) {
+        
         if (jogo.getId() == null && jogoRepository.existsByTituloIgnoreCase(jogo.getTitulo())) {
             result.rejectValue("titulo", "error.jogo", "Este título já está cadastrado no sistema.");
         }
@@ -69,6 +76,18 @@ public class JogoController {
             return "cadastro";     
         }
 
+        // Se houver arquivo na requisição, faz upload e salva a URL no modelo do jogo
+        if (!file.isEmpty()) {
+            String urlImagem = supabaseService.uploadImagem(file);
+            jogo.setUrlCapa(urlImagem);
+        } else if (jogo.getId() != null) {
+            // Se for edição e não enviou nova imagem, mantém a antiga
+            Jogo jogoExistente = jogoRepository.findById(jogo.getId()).orElse(null);
+            if (jogoExistente != null) {
+                jogo.setUrlCapa(jogoExistente.getUrlCapa());
+            }
+        }
+
         jogoRepository.save(jogo);
         return "redirect:/";
     }
@@ -80,7 +99,6 @@ public class JogoController {
         
         model.addAttribute("jogo", jogo);
         carregarListas(model); 
-        
         return "cadastro"; 
     }
 
