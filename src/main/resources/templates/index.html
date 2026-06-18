@@ -4,58 +4,159 @@
     <meta charset="UTF-8">
     <title>Meus Jogos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .catalogo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .book {
+            position: relative;
+            border-radius: 10px;
+            width: 220px;
+            height: 320px; 
+            background-color: whitesmoke;
+            -webkit-box-shadow: 1px 1px 12px #000;
+            box-shadow: 1px 1px 12px rgba(0,0,0,0.5);
+            -webkit-transform: preserve-3d;
+            -ms-transform: preserve-3d;
+            transform: preserve-3d;
+            -webkit-perspective: 2000px;
+            perspective: 2000px;
+            display: flex;
+            align-items: flex-start; 
+            justify-content: center;
+            color: #333;
+        }
+
+        .book-content {
+            padding: 20px 15px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; 
+        }
+
+        .book-content p {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .book-content strong {
+            color: #000;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .book-actions {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+        }
+
+        .cover {
+            top: 0;
+            position: absolute;
+            background-color: #212529; 
+            color: white;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            -webkit-transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-transform-origin: 0;
+            -ms-transform-origin: 0;
+            transform-origin: 0;
+            -webkit-box-shadow: 2px 2px 10px rgba(0,0,0,0.6);
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .cover h4 {
+            font-size: 22px;
+            font-weight: bolder;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .book:hover .cover {
+            -webkit-transform: rotateY(-85deg);
+            -ms-transform: rotateY(-85deg);
+            transform: rotateY(-85deg);
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
 <body class="bg-light">
 
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">Catálogo P1</a>
+        
+        <div class="d-flex align-items-center">
+            <span class="text-light me-3 fw-medium" th:text="${nomeUsuario != null ? 'Olá, ' + nomeUsuario : ''}"></span>
+            
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-danger btn-sm fw-bold" style="border-radius: 8px;">Sair</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
 <div class="container mt-5">
     
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-5 border-bottom pb-3">
         <h2>Catálogo de Jogos</h2>
         <form th:action="@{/cadastro}" method="get" class="m-0">
-            <button type="submit" class="btn btn-success">
+            <button type="submit" class="btn btn-success fw-bold" style="border-radius: 10px;">
                 + Cadastrar novo jogo
             </button>
         </form>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <table class="table table-striped table-hover mt-3">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Título</th>
-                        <th>Plataforma</th>
-                        <th>Ano</th>
-                        <th>Gênero</th>
-                        <th class="text-center">Ações</th> </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="jogo : ${jogos}">
-                        <td th:text="${jogo.titulo}">-</td>
-                        <td th:text="${jogo.plataforma}">-</td>
-                        <td th:text="${jogo.anoLancamento}">-</td>
-                        <td th:text="${jogo.genero}">-</td>
-                        <td class="text-center">
-                            
-                            <form th:action="@{/editar/{id}(id=${jogo.id})}" method="get" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-primary">Editar</button>
-                            </form>
-                            
-                            <form th:action="@{/excluir/{id}(id=${jogo.id})}" method="get" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
-                            </form>
-
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <div th:if="${#lists.isEmpty(jogos)}" class="text-center text-muted mt-3">
-                <p>Nenhum jogo cadastrado</p>
-            </div>
-        </div>
+    <div th:if="${#lists.isEmpty(jogos)}" class="text-center text-muted mt-5">
+        <h4>Nenhum jogo cadastrado no momento.</h4>
+        <p>Clique no botão acima para adicionar o seu primeiro título.</p>
     </div>
 
+    <div class="catalogo-grid">
+        <div class="book" th:each="jogo : ${jogos}">
+            
+            <div class="book-content">
+                <p><strong>Lançamento:</strong> <span th:text="${jogo.anoLancamento}"></span></p>
+                <p><strong>Gêneros:</strong> <span th:text="${#strings.listJoin(jogo.genero, ', ')}"></span></p>
+                <p><strong>Plataformas:</strong> <span th:text="${#strings.listJoin(jogo.plataforma, ', ')}"></span></p>
+                
+                <div class="book-actions pt-3 border-top mt-auto">
+                    <form th:action="@{/editar/{id}(id=${jogo.id})}" method="get" class="m-0 w-50 pe-1">
+                        <button type="submit" class="btn btn-sm btn-outline-primary w-100 fw-bold">Editar</button>
+                    </form>
+                    
+                    <form th:action="@{/excluir/{id}(id=${jogo.id})}" method="get" class="m-0 w-50 ps-1">
+                        <button type="submit" class="btn btn-sm btn-outline-danger w-100 fw-bold" onclick="return confirm('Tem certeza que deseja excluir este jogo?');">Excluir</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="cover">
+                <h4 th:text="${jogo.titulo}">Título do Jogo</h4>
+            </div>
+
+        </div>
+    </div>
 </div>
 
 </body>

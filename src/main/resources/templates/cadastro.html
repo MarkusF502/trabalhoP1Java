@@ -2,58 +2,81 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Novo Jogo</title>
+    <title>Cadastro de Jogo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <body class="bg-light">
 
 <div class="container mt-5">
-    
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Cadastrar Novo Jogo</h4>
+    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0" th:text="${jogo.id == null ? 'Cadastrar Novo Jogo' : 'Editar Jogo'}">Cadastro</h3>
+        </div>
+        <div class="card-body">
+            
+            <form th:action="@{/salvar}" th:object="${jogo}" method="post">
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="mb-3">
+                    <label for="titulo" class="form-label">Título do Jogo</label>
+                    <input type="text" class="form-control" id="titulo" th:field="*{titulo}" 
+                           th:classappend="${#fields.hasErrors('titulo')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}" class="invalid-feedback"></div>
                 </div>
-                <div class="card-body">
-                    
-                    <form th:action="@{/salvar}" th:object="${jogo}" method="POST">
-                        
-                        <div class="mb-3">
-                            <label for="titulo" class="form-label">Título do Jogo</label>
-                            <input type="text" id="titulo" class="form-control" th:field="*{titulo}" required placeholder="Ex: The Witcher 3">
-                        </div>
 
-                        <div class="mb-3">
-                            <label for="plataforma" class="form-label">Plataforma</label>
-                            <input type="text" id="plataforma" class="form-control" th:field="*{plataforma}" required placeholder="Ex: PC, PS5, Xbox">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="anoLancamento" class="form-label">Ano de Lançamento</label>
-                            <input type="number" id="anoLancamento" class="form-control" th:field="*{anoLancamento}" required placeholder="Ex: 2015">
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="genero" class="form-label">Gênero</label>
-                            <input type="text" id="genero" class="form-control" th:field="*{genero}" required placeholder="Ex: RPG, Ação, Corrida">
-                        </div>
-
-                        <input type="hidden" th:field="*{id}" />
-
-                        <div class="d-flex justify-content-between">
-                            <a th:href="@{/}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Salvar Jogo</button>
-                        </div>
-                        
-                    </form>
-
+                <div class="mb-3">
+                    <label for="anoLancamento" class="form-label">Ano de Lançamento</label>
+                    <input type="number" class="form-control" id="anoLancamento" th:field="*{anoLancamento}" 
+                           th:classappend="${#fields.hasErrors('anoLancamento')} ? 'is-invalid' : ''">
+                    <div th:if="${#fields.hasErrors('anoLancamento')}" th:errors="*{anoLancamento}" class="invalid-feedback"></div>
                 </div>
-            </div>
+
+                <div class="mb-3">
+                    <label for="plataforma" class="form-label d-block">Plataformas Disponíveis</label>
+                    <select id="plataforma" multiple="multiple" class="form-control select-tags" th:field="*{plataforma}">
+                        <option th:each="plat : ${todasPlataformas}" th:value="${plat}" th:text="${plat}"></option>
+                        <option th:if="${jogo.plataforma != null}" th:each="platCustom : ${jogo.plataforma}" 
+                                th:unless="${todasPlataformas.contains(platCustom)}" 
+                                th:value="${platCustom}" th:text="${platCustom}"></option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('plataforma')}" class="text-danger small mt-1" th:errors="*{plataforma}"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="genero" class="form-label d-block">Gêneros</label>
+                    <select id="genero" multiple="multiple" class="form-control select-tags" th:field="*{genero}">
+                        <option th:each="gen : ${todosGeneros}" th:value="${gen}" th:text="${gen}"></option>
+                        <option th:if="${jogo.genero != null}" th:each="genCustom : ${jogo.genero}" 
+                                th:unless="${todosGeneros.contains(genCustom)}" 
+                                th:value="${genCustom}" th:text="${genCustom}"></option>
+                    </select>
+                    <div th:if="${#fields.hasErrors('genero')}" class="text-danger small mt-1" th:errors="*{genero}"></div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a th:href="@{/}" class="btn btn-secondary">Voltar</a>
+                    <button type="submit" class="btn btn-success">Salvar Jogo</button>
+                </div>
+            </form>
+            
         </div>
     </div>
-
 </div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Inicializa todos os selects que tiverem a classe 'select-tags'
+        $('.select-tags').select2({
+            tags: true, // Isso é o que permite o usuário digitar algo que não está na lista e criar a tag
+            tokenSeparators: [',', ' '], // Pode separar as tags apertando espaço ou vírgula, além do Enter
+            placeholder: "Selecione na lista ou digite para adicionar...",
+            width: '100%' // Garante que o input preencha o tamanho certo do Bootstrap
+        });
+    });
+</script>
 
 </body>
 </html>

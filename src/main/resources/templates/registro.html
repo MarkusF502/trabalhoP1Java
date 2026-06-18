@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar Conta - Catálogo de Jogos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    
+    <style>
+        .input-custom {
+            border: 2px solid transparent;
+            width: 100%;
+            height: 2.8em;
+            padding-left: 0.8em;
+            outline: none;
+            overflow: hidden;
+            background-color: #F3F3F3;
+            border-radius: 10px;
+            transition: all 0.5s;
+        }
+
+        .input-custom:hover,
+        .input-custom:focus {
+            border: 2px solid #4A9DEC;
+            box-shadow: 0px 0px 0px 7px rgba(74, 157, 236, 0.2);
+            background-color: white;
+        }
+
+        .input-custom.is-invalid {
+            border: 2px solid #dc3545;
+            background-color: #fff8f8;
+        }
+        
+        .input-custom.is-invalid:focus {
+            box-shadow: 0px 0px 0px 7px rgba(220, 53, 69, 0.2);
+        }
+
+        /* Estilos do Select2 copiados do cadastro de jogos */
+        .select2-container--default .select2-selection--multiple {
+            border: 2px solid transparent !important;
+            background-color: #F3F3F3 !important;
+            border-radius: 10px !important;
+            min-height: 2.8em !important;
+            padding-left: 0.4em !important;
+            transition: all 0.5s !important;
+            outline: none !important;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple,
+        .select2-container--default .select2-selection--multiple:hover {
+            border: 2px solid #4A9DEC !important;
+            box-shadow: 0px 0px 0px 7px rgba(74, 157, 236, 0.2) !important;
+            background-color: white !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #e9ecef !important;
+            border: none !important;
+            border-radius: 6px !important;
+            padding: 4px 8px !important;
+            margin-top: 6px !important;
+            margin-right: 6px !important;
+            display: inline-flex !important;
+            flex-direction: row-reverse !important;
+            align-items: center !important;
+            float: left !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            margin-right: 0 !important;
+            margin-left: 8px !important;
+            color: #6c757d !important;
+            border-right: none !important;
+            border-left: 1px solid #ced4da !important;
+            padding-right: 0 !important;
+            padding-left: 6px !important;
+            font-weight: bold !important;
+            border-radius: 0 !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            background-color: transparent !important;
+            color: #dc3545 !important;
+        }
+    </style>
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+
+    <div class="card shadow-sm mx-auto my-5" style="width: 100%; max-width: 500px; border-radius: 15px;">
+        <div class="card-header bg-dark text-white" style="border-top-left-radius: 15px; border-top-right-radius: 15px;">
+            <h3 class="mb-0 pt-2 pb-2 text-center">Criar Conta</h3>
+        </div>
+        <div class="card-body p-4">
+            
+            <form th:action="@{/salvar-usuario}" th:object="${usuario}" method="post">
+                
+                <div class="mb-4">
+                    <label for="nome" class="form-label fw-bold text-secondary">Nome Completo</label>
+                    <input type="text" class="input-custom" id="nome" th:field="*{nome}" 
+                           th:classappend="${#fields.hasErrors('nome')} ? 'is-invalid' : ''" placeholder="Seu nome">
+                    <div th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}" class="text-danger small mt-1"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="email" class="form-label fw-bold text-secondary">E-mail</label>
+                    <input type="email" class="input-custom" id="email" th:field="*{email}" 
+                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''" placeholder="Seu e-mail">
+                    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger small mt-1"></div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="senha" class="form-label fw-bold text-secondary">Senha</label>
+                    <input type="password" class="input-custom" id="senha" th:field="*{senha}" 
+                           th:classappend="${#fields.hasErrors('senha')} ? 'is-invalid' : ''" placeholder="Mínimo 6 caracteres">
+                    <div th:if="${#fields.hasErrors('senha')}" th:errors="*{senha}" class="text-danger small mt-1"></div>
+                </div>
+
+                <div class="mb-5">
+                    <label for="plataformas" class="form-label fw-bold text-secondary d-block">Quais plataformas você joga?</label>
+                    <select id="plataformas" multiple="multiple" class="form-control select-tags" th:field="*{plataformas}">
+                        <option th:each="plat : ${todasPlataformas}" th:value="${plat}" th:text="${plat}"></option>
+                        <option th:if="${usuario.plataformas != null}" th:each="platCustom : ${usuario.plataformas}" 
+                                th:unless="${todasPlataformas.contains(platCustom)}" 
+                                th:value="${platCustom}" th:text="${platCustom}"></option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 fw-bold mb-3" style="border-radius: 10px; background-color: #4A9DEC; border-color: #4A9DEC; height: 2.8em;">Cadastrar</button>
+                
+                <div class="text-center">
+                    <span class="text-secondary small">Já tem uma conta?</span>
+                    <a th:href="@{/login}" class="text-decoration-none fw-bold" style="color: #4A9DEC;">Faça Login</a>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select-tags').select2({
+                tags: true,
+                tokenSeparators: [',', ' '],
+                placeholder: "Selecione ou digite sua plataforma...",
+                width: '100%'
+            });
+        });
+    </script>
+</body>
+</html>
